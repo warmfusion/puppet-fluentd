@@ -15,33 +15,27 @@
 
 ## Overview
 
-A one-maybe-two sentence summary of what the module does/what problem it solves.
-This is your 30 second elevator pitch for your module. Consider including
-OS/Puppet version it works with.
+Manage a FluentD installation from the community managed Gem, and provide configuration
+for your environment using a set of puppet resources.
 
 ## Module Description
 
-If applicable, this section should have a brief description of the technology
-the module integrates with and what that integration enables. This section
-should answer the questions: "What does this module *do*?" and "Why would I use
-it?"
-
-If your module has a range of functionality (installation, configuration,
-management, etc.) this is the time to mention it.
+This module attempts to provide a mechanism to manage a FluentD installation using 
+the gem daemons rather than the td-agent packages which are not as well supported on
+some systems.
 
 ## Setup
 
 ### What fluentd affects
 
-* A list of files, packages, services, or operations that the module will alter,
-  impact, or execute on the system it's installed on.
-* This is a great place to stick any warnings.
-* Can be in list or paragraph form.
+* Installs the fluentd gem
+* Creates a minimum set of configuration files and directories
+* Provides resources to create additional named configuration files to be included automatically
+* Manages the fluentd service
 
 ### Setup Requirements **OPTIONAL**
 
-If your module requires anything extra before setting up (pluginsync enabled,
-etc.), mention it here.
+TBA
 
 ### Beginning with fluentd
 

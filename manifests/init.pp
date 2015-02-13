@@ -35,7 +35,17 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-class fluentd {
+class fluentd (
+    $ensure     = 'present',
+    ){
+
+  validate_re($ensure, ['^absent$', '^installed$', '^latest$', '^present$', '^[\d\.\-]+$'], "Invalid fluentd ensure : ${ensure}")
 
 
+  # Include everything and let each module determine its state.  This allows
+  # transitioning to purged config and stopping/disabling services
+  anchor { 'fluentd::begin': } ->
+  class { 'fluentd::package': } ->
+  class { 'fluentd::service': } ->
+  anchor {'fluentd::end': }
 }

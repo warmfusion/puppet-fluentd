@@ -3,19 +3,28 @@
 # Matcher for '<%= @name %>''
 
 <match <%= @pattern.kind_of?(Array) ? @pattern.join(' ') : @pattern -%> >
-
 <%
-  @config.each do |key, value|
-    if value.is_a?(::Hash) -%>
-<%=   "   <%s>" % [  key ] %>
-<%    value.each do |key_2, value_2| %>
-<%=      "   %s %s" % [ key_2, value_2 ] %>
-<%    end #value.each %>
-<%=   "   </%s>" % [  key ] %>
-<%  else #not value.hash %>
-<%= "   %s %s" % [ key, value ] %>
-<%  end #value.hash? %>
-<%end #config.each %>
 
+  # This code is very fragile
+  # it tries to work around the lack of recursion in the ERB templates
+  # by creating a stack of operations to work upon, where each
+  # hash or array seen is unpacked and placed onto the top of the stack
+  
+  conf = @config
+
+  while (c = conf.shift) do
+       key   = c[0]
+       value = c[1]
+       case value
+         when Hash 
+            conf.store( "<%s>" % key, '')
+            value.each { |key, value|  conf.store( "  %s" % key, value) }
+            conf.store( "</%s>" % key, '')
+         when Array
+            scope.function_fail(['FluentD::Match  - Arrays are not supported in config '])
+         else -%>
+            <%= '%s %s' % [key, value] %>
+    <%-   end -%>
+<%- end -%>
 
 </match>

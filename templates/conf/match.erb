@@ -3,9 +3,19 @@
 # Matcher for '<%= @name %>''
 
 <match <%= @pattern.kind_of?(Array) ? @pattern.join(' ') : @pattern -%> >
-   type <%= @type %>
+
 <%
-  @type_config.each do |option, param| -%>
-   <%= option -%> <%= param %>
-<% end %>
+  @config.each do |key, value|
+    if value.is_a?(::Hash) -%>
+<%=   "   <%s>" % [  key ] %>
+<%    value.each do |key_2, value_2| %>
+<%=      "   %s %s" % [ key_2, value_2 ] %>
+<%    end #value.each %>
+<%=   "   </%s>" % [  key ] %>
+<%  else #not value.hash %>
+<%= "   %s %s" % [ key, value ] %>
+<%  end #value.hash? %>
+<%end #config.each %>
+
+
 </match>

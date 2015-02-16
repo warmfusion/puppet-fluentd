@@ -34,8 +34,7 @@
 define fluentd::match (
     $priority      = 10,
     $pattern       = [ "${name}.*" ],
-    $type          = undef,
-    $type_config   = [],
+    $config        = undef,
   ){
 
   if !is_integer($priority) {
@@ -44,8 +43,8 @@ define fluentd::match (
   if !$pattern {
     fail("fluentd::match{${name}}: pattern must be defined (got: ${pattern})")
   }
-  if !$type {
-    fail("fluentd::match{${name}}: type must be set)")
+  if !$config {
+    fail("fluentd::match{${name}}: config must be set)")
   }
 
   file { "/etc/fluent/conf.d/matchers/${priority}-${name}.conf":

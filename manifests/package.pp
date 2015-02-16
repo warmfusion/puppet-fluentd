@@ -5,13 +5,23 @@ class fluentd::package{
       ensure=> 'present',
     }
 
-    $dirs = [ '/etc/fluent','/etc/fluent/conf.d','/etc/fluent/conf.d/sources',
-        '/etc/fluent/conf.d/matchers/', '/var/log/fluent', '/var/run/fluent' ]
+    $dirs = [ '/etc/fluent', '/var/log/fluent', '/var/run/fluent' ]
     file{ $dirs:
         ensure => 'directory',
         owner   => 'fluent',
         group   => 'fluent',
         mode    => 0755,
+    }
+
+    $exlusive_dirs = [ '/etc/fluent/conf.d','/etc/fluent/conf.d/sources',
+        '/etc/fluent/conf.d/matchers/']
+    file {$exlusive_dirs:
+        ensure => 'directory',
+        owner   => 'fluent',
+        group   => 'fluent',
+        mode    => 0755,
+        purge   => true,
+        recurse => true,
     }
 
     file{ '/etc/fluent/fluent.conf':

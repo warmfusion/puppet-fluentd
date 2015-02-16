@@ -36,7 +36,8 @@
 # Copyright 2015 Your name here, unless otherwise noted.
 #
 class fluentd (
-    $ensure     = 'present',
+    $ensure       = 'present',
+    $user_groups  = ['fluent'],
     ){
 
   validate_re($ensure, ['^absent$', '^installed$', '^latest$', '^present$', '^[\d\.\-]+$'], "Invalid fluentd ensure : ${ensure}")

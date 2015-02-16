@@ -32,12 +32,13 @@ class fluentd::package{
     }
 
     user { 'fluent':
-        gid   => 'fluent',
-        shell => '/bin/true',
-        home  => '/etc/fluent',
+        gid    => 'fluent',
+        groups => $fluentd::user_groups,
+        shell  => '/bin/true',
+        home   => '/etc/fluent',
         forcelocal => true,
     }
-    group { 'fluent':
+    group { 'fluent' :
         ensure => 'present'
     }
 }

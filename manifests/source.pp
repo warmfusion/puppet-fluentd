@@ -20,44 +20,42 @@
 #
 #
 # [*type*]
-#    String. Output plugin type to send events to, eg file, forward, http etc
+#    String. Deprecated - set inside content
 #    Default: undef
 #
 # [*type_config*]
-#    Hash. Configuration for type has a key/value hash
+#    Hash. Deprecated - use content
 #    Default: undef
 #
-# [*ensure*]
-#    String. Ensure that this source configuration is [present, absent]
-#    Default: present
-#
-# [*plugin_name*]
-#    String. Plugin to ensure exists to use this type
-#    Default: $type
-#
-# [*plugin_ensure*]
-#    String. Ensure that this plugin is 'present', 'absent', 'latest', etc
-#    Default: 'present'
+# [*content*]
+#    Hash. Hash containing strings, hashes or arrays (1 level deep) to describe your configuration
+#          Must include a type
+#    Default: undef
 #  
 #
 define fluentd::source (
     $priority      = 10,
     $type          = undef,
     $type_config   = undef,
-    $ensure        = 'present',
-    $plugin_name   = undef,
-    $plugin_ensure = 'present',
+    $content       = {}
   ){
 
   if !is_integer($priority) {
     fail("fluentd::source{${name}}: priority must be an integer (got: ${priority})")
   }
 
-  validate_re($ensure, ['^absent$', '^present$' ], "fluentd::source{${name}}: ensure must be either present or absent (got: ${ensure})")
+
+  if $type {
+    warning("fluentd::source{${name}}: type is deprecated - Please configure type in the $content variable)")
+  }
+
+  if $type_config {
+    warning("fluentd::source{${name}}: type_config is deprecated - Please configure source using the $content variable)")
+  }
 
 
-  if !$type {
-    fail("fluentd::source{${name}}: type must be set)")
+  if ! $content['type'] and ! $type {
+    fail("fluentd::source{${name}} $content must contain a 'type' value")
   }
 
   file { "/etc/fluent/conf.d/sources/${priority}-${name}.conf":
@@ -68,14 +66,6 @@ define fluentd::source (
     group   => 'fluent',
     mode    => '0440',
     require => File['/etc/fluent/conf.d/sources/'],
-  }
-
-  if $package_name { 
-      package{ "${plugin_name}":
-        ensure => "${plugin_ensure}",
-        provider => 'fluentd-gem',
-        notify  => Service['fluentd'],
-      }
   }
 
 

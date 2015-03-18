@@ -4,8 +4,15 @@
 
 <match <%= @pattern.kind_of?(Array) ? @pattern.join(' ') : @pattern -%> >
    type <%= @type %>
-<%
-  @type_config.each do |option, param| -%>
-   <%= option -%> <%= param %>
+<% @type_config.each do |option, param| -%>
+  <%- if param.is_a?( Hash ) -%>
+    <<%= option %>>
+    <%- param.each do |k,v| -%>
+        <%= k %> <%= v %>
+    <%- end -%>
+    </<%= option %>>
+  <%- else -%>
+     <%= option -%> <%= param %>
+  <% end %>
 <% end %>
 </match>

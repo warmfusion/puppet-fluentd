@@ -23,11 +23,16 @@
 #   Default: [ ${name}.* ]
 #
 # [*type*]
-#    String. Output plugin type to send events to, eg file, forward, http etc
+#    String. Deprecated - set inside content
 #    Default: undef
 #
 # [*type_config*]
-#    Hash. Configuration for type has a key/value hash
+#    Hash. Deprecated - use content
+#    Default: undef
+#
+# [*content*]
+#    Hash. Hash containing strings, hashes or arrays (1 level deep) to describe your configuration
+#          Must include a type
 #    Default: undef
 #  
 #
@@ -35,7 +40,8 @@ define fluentd::match (
     $priority      = 10,
     $pattern       = [ "${name}.*" ],
     $type          = undef,
-    $type_config   = [],
+    $type_config   = undef,
+    $content       = undef
   ){
 
   if !is_integer($priority) {
@@ -44,9 +50,21 @@ define fluentd::match (
   if !$pattern {
     fail("fluentd::match{${name}}: pattern must be defined (got: ${pattern})")
   }
-  if !$type {
-    fail("fluentd::match{${name}}: type must be set)")
+
+
+  if $type {
+    warning("fluentd::match{${name}}: type is deprecated - Please configure type in the $content variable)")
   }
+
+  if $type_config {
+    warning("fluentd::match{${name}}: type_config is deprecated - Please configure source using the $content variable)")
+  }
+
+
+  unless ($content and $content['type']) or $type {
+    fail("fluentd::match{${name}} $content must contain a 'type' value") # (or type whilst its deprecated)
+  }
+
 
   file { "/etc/fluent/conf.d/matchers/${priority}-${name}.conf":
     ensure  => $ensure,

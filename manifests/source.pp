@@ -37,7 +37,7 @@ define fluentd::source (
     $priority      = 10,
     $type          = undef,
     $type_config   = undef,
-    $content       = {}
+    $content       = undef
   ){
 
   if !is_integer($priority) {
@@ -54,8 +54,8 @@ define fluentd::source (
   }
 
 
-  if ! $content['type'] and ! $type {
-    fail("fluentd::source{${name}} $content must contain a 'type' value")
+  unless ($content and $content['type']) or $type {
+    fail("fluentd::source{${name}} $content must contain a 'type' value") # (or type whilst its deprecated)
   }
 
   file { "/etc/fluent/conf.d/sources/${priority}-${name}.conf":

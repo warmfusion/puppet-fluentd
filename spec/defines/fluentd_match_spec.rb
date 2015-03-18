@@ -15,7 +15,7 @@ describe 'fluentd::match' do
           :priority   => 20,
           :pattern    => 'baz',
           :type       => 'something',
-          :content => {}
+          :config => {}
         }}
 
         it "should throw a warning about type being deprecated" do
@@ -60,7 +60,7 @@ describe 'fluentd::match' do
       let(:params) {{
         :pattern    => 'baz',
         :priority   => 20,
-        :content     => {
+        :config     => {
           'type'              => 'file',
           'time_slice_wait'   => '10m',
           'compress'          => 'gzip',
@@ -76,7 +76,7 @@ describe 'fluentd::match' do
       context "when multiple patterns" do
         let(:params) {{
           :pattern    => ['baz', 'foo'],
-          :content     => {
+          :config     => {
             'type'              => 'file',
            }
           }}
@@ -91,7 +91,7 @@ describe 'fluentd::match' do
       context "when one pattern and multiple simple options" do
         let(:params) {{
           :pattern    => 'baz',
-          :content     => {
+          :config     => {
             'type'              => 'file',
             'option1' => 'valueone',
             'option2' => 'value2'
@@ -107,7 +107,7 @@ describe 'fluentd::match' do
       context "when one pattern and a nested options configuration" do
         let(:params) {{
           :pattern    => 'baz',
-          :content     => {
+          :config     => {
             'type'              => 'copy',
             'server' => {
               'option1' => 'valueone',
@@ -125,7 +125,7 @@ describe 'fluentd::match' do
       context "when one pattern and multiple different nested options configuration" do
         let(:params) {{
           :pattern    => 'baz',
-          :content     => {
+          :config     => {
             'type'              => 'copy',
             'server' => {
               'option1' => 'valueone',
@@ -148,7 +148,7 @@ describe 'fluentd::match' do
       context "when one pattern and multiple similar nested options configuration" do
         let(:params) {{
           :pattern    => 'baz',
-          :content     => {
+          :config     => {
             'type'              => 'copy',
             'server' => [ 
                 {
@@ -171,7 +171,7 @@ describe 'fluentd::match' do
       context "when a complex multiple server and secondary configuration is defined" do
         let(:params) {{
           :pattern    => 'baz',
-          :content     => {
+          :config     => {
             'type'              => 'copy',
             'server' => [ 
                 {

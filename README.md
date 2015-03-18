@@ -15,6 +15,8 @@
 
 ## Overview
 
+[![Build Status](https://travis-ci.org/warmfusion/puppet-fluentd.svg?branch=master)](https://travis-ci.org/warmfusion/puppet-fluentd)
+
 Manage a FluentD installation from the community managed Gem, and provide configuration
 for your environment using a set of puppet resources.
 
@@ -23,6 +25,14 @@ for your environment using a set of puppet resources.
 This module attempts to provide a mechanism to manage a FluentD installation using 
 the gem daemons rather than the td-agent packages which are not as well supported on
 some systems.
+
+
+The code has been heavily based on the Puppet module created by (mms-srf)[https://github.com/mmz-srf/puppet-fluentd]
+as I wanted to try and solve a few perceived problems with that implementation:
+
+1. Avoid use of td-agent and instead use fluentd gem directly
+2. Improve flexibility of configuration by enabling multiple nested elements and arrays without hardcoding
+
 
 ## Setup
 
@@ -33,41 +43,94 @@ some systems.
 * Provides resources to create additional named configuration files to be included automatically
 * Manages the fluentd service
 
-### Setup Requirements **OPTIONAL**
 
-TBA
+## Configuration
 
-### Beginning with fluentd
+How to configure the fluentd agent to send data to a centralised Fluentd-Server
 
-The very basic steps needed for a user to get the module up and running.
+### Install a Plugin
 
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you may wish to include an additional section here: Upgrading
-(For an example, see http://forge.puppetlabs.com/puppetlabs/firewall).
+> WARNING: This is not complete. Do not attempt to use this
 
-## Usage
+Install your fluentd plugin. (Check [here](http://fluentd.org/plugin/) for the
+right plugin name.)
 
-Put the classes, types, and resources for customizing, configuring, and doing
-the fancy stuff with your module here.
+You can choose from a file or gem based installation.
 
-## Reference
+```
+include ::fluentd
 
-Here, list the classes, types, providers, facts, etc contained in your module.
-This section should include all of the under-the-hood workings of your module so
-people know what the module is touching on their system but don't need to mess
-with things. (We are working on automating this section!)
+fluentd::plugin { 'elasticsearch':
+  plugin_type => 'gem',
+  plugin_name => 'fluent-plugin-elasticsearch',
+}
+```
 
-## Limitations
+### Configure a Source
 
-This is where you list OS compatibility, version compatibility, etc.
+Sources describe to fluentd where to obtain its data to process. This can include
+reading log files, opening tcp ports, running http services etc.
+
+
+```
+include ::fluentd
+
+fluentd::source { 'apache':
+  config => {
+    'format'   => 'apache2',
+    'path'     => '/var/log/apache2/access.log',
+    'pos_file' => '/var/tmp/fluentd.pos',
+    'tag'      => 'apache.access_log',
+    'type'     => 'tail',
+  },
+}
+
+fluentd::source { 'syslog':
+  config => {
+    'format'   => 'syslog',
+    'path'     => '/var/log/syslog',
+    'pos_file' => '/tmp/td-agent.syslog.pos',
+    'tag'      => 'system.syslog',
+    'type'     => 'tail',
+  },
+}
+
+
+### Match configuration
+
+fluentd::match { 'forward':
+  pattern  => '**',
+  priority => '80',
+  config   => {
+    'type'    => 'forward',
+    'servers' => [
+      { 'host' => 'fluentd.example.com', 'port' => '24224' }
+    ],
+  },
+}
+
+
+...creates the following files:
+
+```
+/etc/fluentd/
+  ├── conf.d
+  │   ├── matchers
+  │   │   └── 80-forward.conf
+  │   └── sources
+  │       ├── 10-apache.conf
+  │       └── 10-syslog.conf
+  ├── ...
+  ...
+```
+
+
+
+## TODO
+
+ [ ] - Plugin management
+ [ ] - Remove MASSIVE duplication of effort between source and match config - its basically the same thing twice
 
 ## Development
 
-Since your module is awesome, other users will want to play with it. Let them
-know what the ground rules for contributing are.
 
-## Release Notes/Contributors/Etc **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You may also add any additional sections you feel are
-necessary or important to include here. Please use the `## ` header.

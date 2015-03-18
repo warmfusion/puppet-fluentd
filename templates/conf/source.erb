@@ -4,10 +4,10 @@
 <%
 # Deal with deprecated values here
 
-# set configuration to the deprecated value if content isnt set
-conf = @content.nil? ? @type_config : @content
+# set configuration to the deprecated value if config isnt set
+conf = @config.nil? ? @type_config : @config
 
-#ensure content type is defined
+#ensure config type is defined
 conf['type'] ||= @type
 
 #End of deprecation nonsense

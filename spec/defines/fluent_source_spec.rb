@@ -14,7 +14,7 @@ describe 'fluentd::source' do
       let(:params) {{
           :priority   => 20,
           :type       => 'something',
-          :content => {}
+          :config => {}
         }}
 
         it "should throw a warning about type being deprecated" do
@@ -31,7 +31,7 @@ describe 'fluentd::source' do
         end
     end
 
-        context "when the type_cofig attribute is used" do
+        context "when the type_config attribute is used" do
       let(:params) {{
           :priority   => 20,
           :type       => 'something',
@@ -58,7 +58,7 @@ describe 'fluentd::source' do
     context "when creating source with multiple common sections" do
       let(:params) {{
         :priority   => 20,
-        :content     => {
+        :config     => {
           'type'    => 'multiprocess',
           'process' => [
             {
@@ -87,7 +87,7 @@ describe 'fluentd::source' do
 
       context "when multiple simple options" do
         let(:params) {{
-          :content     => {
+          :config     => {
             'type'    => 'file',
             'option1' => 'valueone',
             'option2' => 'value2'
@@ -102,7 +102,7 @@ describe 'fluentd::source' do
 
       context "when a nested options configuration" do
         let(:params) {{
-          :content     => {
+          :config     => {
             'type'       => 'copy',
             'server' => {
               'option1' => 'valueone',
@@ -119,7 +119,7 @@ describe 'fluentd::source' do
 
       context "when multiple different nested options configuration" do
         let(:params) {{
-          :content     => {
+          :config     => {
             'type'   => 'copy',
             'server' => {
               'option1' => 'valueone',
@@ -141,7 +141,7 @@ describe 'fluentd::source' do
 
       context "when multiple similar nested options configuration" do
         let(:params) {{
-          :content     => {
+          :config     => {
             'type'   => 'copy',
             'server' => [ 
                 {
@@ -163,7 +163,7 @@ describe 'fluentd::source' do
 
       context "when a complex multiple server and secondary configuration is defined" do
         let(:params) {{
-          :content     => {
+          :config     => {
             'type'        => 'copy',
             'buffer_size' => 100,
             'server' => [ 

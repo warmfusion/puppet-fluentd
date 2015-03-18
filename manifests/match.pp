@@ -41,7 +41,7 @@ define fluentd::match (
     $pattern       = [ "${name}.*" ],
     $type          = undef,
     $type_config   = undef,
-    $content       = undef
+    $config       = undef
   ){
 
   if !is_integer($priority) {
@@ -53,16 +53,16 @@ define fluentd::match (
 
 
   if $type {
-    warning("fluentd::match{${name}}: type is deprecated - Please configure type in the $content variable)")
+    warning("fluentd::match{${name}}: type is deprecated - Please configure type in the $config variable)")
   }
 
   if $type_config {
-    warning("fluentd::match{${name}}: type_config is deprecated - Please configure source using the $content variable)")
+    warning("fluentd::match{${name}}: type_config is deprecated - Please configure source using the $config variable)")
   }
 
 
-  unless ($content and $content['type']) or $type {
-    fail("fluentd::match{${name}} $content must contain a 'type' value") # (or type whilst its deprecated)
+  unless ($config and $config['type']) or $type {
+    fail("fluentd::match{${name}} $config must contain a 'type' value") # (or type whilst its deprecated)
   }
 
 

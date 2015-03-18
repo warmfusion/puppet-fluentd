@@ -20,14 +20,14 @@
 #
 #
 # [*type*]
-#    String. Deprecated - set inside content
+#    String. Deprecated - set inside config
 #    Default: undef
 #
 # [*type_config*]
-#    Hash. Deprecated - use content
+#    Hash. Deprecated - use config
 #    Default: undef
 #
-# [*content*]
+# [*config*]
 #    Hash. Hash containing strings, hashes or arrays (1 level deep) to describe your configuration
 #          Must include a type
 #    Default: undef
@@ -37,7 +37,7 @@ define fluentd::source (
     $priority      = 10,
     $type          = undef,
     $type_config   = undef,
-    $content       = undef
+    $config       = undef
   ){
 
   if !is_integer($priority) {
@@ -46,16 +46,16 @@ define fluentd::source (
 
 
   if $type {
-    warning("fluentd::source{${name}}: type is deprecated - Please configure type in the $content variable)")
+    warning("fluentd::source{${name}}: type is deprecated - Please configure type in the $config variable)")
   }
 
   if $type_config {
-    warning("fluentd::source{${name}}: type_config is deprecated - Please configure source using the $content variable)")
+    warning("fluentd::source{${name}}: type_config is deprecated - Please configure source using the $config variable)")
   }
 
 
-  unless ($content and $content['type']) or $type {
-    fail("fluentd::source{${name}} $content must contain a 'type' value") # (or type whilst its deprecated)
+  unless ($config and $config['type']) or $type {
+    fail("fluentd::source{${name}} $config must contain a 'type' value") # (or type whilst its deprecated)
   }
 
   file { "/etc/fluent/conf.d/sources/${priority}-${name}.conf":

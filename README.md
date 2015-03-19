@@ -110,20 +110,68 @@ fluentd::match { 'forward':
 }
 
 
-...creates the following files:
+
+#### Forest Pluging configuration
+
+This is an example of having key/value configuration for nested elements other than
+the 'server' elements usually seen - This example is based on using the (forest configuration)[https://github.com/tagomoris/fluent-plugin-forest] 
+plugin to manage the configuration of a (fluentd-plugin-elasticsearch)[https://github.com/uken/fluent-plugin-elasticsearch] gem.
 
 ```
-/etc/fluentd/
-  ├── conf.d
-  │   ├── matchers
-  │   │   └── 80-forward.conf
-  │   └── sources
-  │       ├── 10-apache.conf
-  │       └── 10-syslog.conf
-  ├── ...
-  ...
+fluentd::match { 'forest-es':
+  pattern  => '**',
+  priority => '10',
+  config   => {
+    'type'    => 'forst',
+    'subtype' => 'elasticsearch',
+    'remove_prefix' => 'my.logs',
+    'template' => [
+      { 
+        'host' => 'elasticsearch.example.com', 
+        'port' => 9200 
+        'logstash_prefix' => ${tag[1]},
+      }
+    ],
+  },
+}
 ```
 
+#### Forwarder with Secondary
+
+This is a very complicated example, based on the documentation of an (out forwarder)[http://docs.fluentd.org/articles/out_forward]
+
+```
+fluentd::match { 'forwarder-safe':
+  pattern  => '**',
+  priority => '10',
+  config   => {
+    'type'  =>  'forward',
+    'send_timeout'  =>  '60s',
+    'recover_wait'  =>  '10s',
+    'heartbeat_interval'  =>  '1s',
+    'phi_threshold'  =>  '16',
+    'hard_timeout'  =>  '60s',
+
+    'server' => [
+    {
+       'name'  =>  'myserver1',
+       'host'  =>  '192.168.1.3',
+       'port'  =>  '24224',
+       'weight'  =>  '60',
+     },{
+       'name'  =>  'myserver2',
+       'host'  =>  '192.168.1.4',
+       'port'  =>  '24224',
+       'weight'  =>  '60',
+     }
+    ],
+    'secondary' => {
+     'type'  =>  'file',
+     'path'  =>  '/var/log/fluent/forward-failed',
+}
+  }
+}
+```
 
 
 ## TODO

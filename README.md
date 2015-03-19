@@ -8,9 +8,8 @@
     * [What fluentd affects](#what-fluentd-affects)
     * [Setup requirements](#setup-requirements)
     * [Beginning with fluentd](#beginning-with-fluentd)
-4. [Usage - Configuration options and additional functionality](#usage)
-5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
-5. [Limitations - OS compatibility, etc.](#limitations)
+4. [Usage - Configuration options and additional functionality](#configuration)
+5. [Todo List - What needs to be done](#todo)
 6. [Development - Guide for contributing to the module](#development)
 
 ## Overview
@@ -27,7 +26,7 @@ the gem daemons rather than the td-agent packages which are not as well supporte
 some systems.
 
 
-The code has been heavily based on the Puppet module created by (mms-srf)[https://github.com/mmz-srf/puppet-fluentd]
+The code has been heavily based on the Puppet module created by [mms-srf](https://github.com/mmz-srf/puppet-fluentd)
 as I wanted to try and solve a few perceived problems with that implementation:
 
 1. Avoid use of td-agent and instead use fluentd gem directly
@@ -110,11 +109,11 @@ reading log files, opening tcp ports, running http services etc.
     }
 
 
-#### Forest Pluging configuration
+#### Forest Plugin configuration
 
 This is an example of having key/value configuration for nested elements other than
-the 'server' elements usually seen - This example is based on using the (forest configuration)[https://github.com/tagomoris/fluent-plugin-forest] 
-plugin to manage the configuration of a (fluentd-plugin-elasticsearch)[https://github.com/uken/fluent-plugin-elasticsearch] gem.
+the 'server' elements usually seen - This example is based on using the [forest configuration](https://github.com/tagomoris/fluent-plugin-forest) 
+plugin to manage the configuration of a [fluentd-plugin-elasticsearch](https://github.com/uken/fluent-plugin-elasticsearch) gem.
 
 
     fluentd::match { 'forest-es':
@@ -136,7 +135,7 @@ plugin to manage the configuration of a (fluentd-plugin-elasticsearch)[https://g
 
 #### Forwarder with Secondary
 
-This is a very complicated example, based on the documentation of an (out forwarder)[http://docs.fluentd.org/articles/out_forward]
+This is a very complicated example, based on the documentation of an [out forwarder](http://docs.fluentd.org/articles/out_forward)
 
 
     fluentd::match { 'forwarder-safe':

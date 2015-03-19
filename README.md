@@ -48,23 +48,23 @@ as I wanted to try and solve a few perceived problems with that implementation:
 
 How to configure the fluentd agent to send data to a centralised Fluentd-Server
 
-### Install a Plugin
+### Install a Required Plugin
 
-> WARNING: This is not complete. Do not attempt to use this
+> WARNING: Plugin configuration is not complete. Do not attempt to use this yet
 
 Install your fluentd plugin. (Check [here](http://fluentd.org/plugin/) for the
 right plugin name.)
 
 You can choose from a file or gem based installation.
 
-```
-include ::fluentd
 
-fluentd::plugin { 'elasticsearch':
-  plugin_type => 'gem',
-  plugin_name => 'fluent-plugin-elasticsearch',
-}
-```
+    include ::fluentd
+
+    fluentd::plugin { 'elasticsearch':
+      plugin_type => 'gem',
+      plugin_name => 'fluent-plugin-elasticsearch',
+    }
+
 
 ### Configure a Source
 
@@ -72,43 +72,42 @@ Sources describe to fluentd where to obtain its data to process. This can includ
 reading log files, opening tcp ports, running http services etc.
 
 
-```
-include ::fluentd
 
-fluentd::source { 'apache':
-  config => {
-    'format'   => 'apache2',
-    'path'     => '/var/log/apache2/access.log',
-    'pos_file' => '/var/tmp/fluentd.pos',
-    'tag'      => 'apache.access_log',
-    'type'     => 'tail',
-  },
-}
+    include ::fluentd
 
-fluentd::source { 'syslog':
-  config => {
-    'format'   => 'syslog',
-    'path'     => '/var/log/syslog',
-    'pos_file' => '/tmp/td-agent.syslog.pos',
-    'tag'      => 'system.syslog',
-    'type'     => 'tail',
-  },
-}
+    fluentd::source { 'apache':
+      config => {
+        'format'   => 'apache2',
+        'path'     => '/var/log/apache2/access.log',
+        'pos_file' => '/var/tmp/fluentd.pos',
+        'tag'      => 'apache.access_log',
+        'type'     => 'tail',
+      },
+    }
+
+    fluentd::source { 'syslog':
+      config => {
+        'format'   => 'syslog',
+        'path'     => '/var/log/syslog',
+        'pos_file' => '/tmp/td-agent.syslog.pos',
+        'tag'      => 'system.syslog',
+        'type'     => 'tail',
+      },
+    }
 
 
 ### Match configuration
 
-fluentd::match { 'forward':
-  pattern  => '**',
-  priority => '80',
-  config   => {
-    'type'    => 'forward',
-    'servers' => [
-      { 'host' => 'fluentd.example.com', 'port' => '24224' }
-    ],
-  },
-}
-
+    fluentd::match { 'forward':
+      pattern  => '**',
+      priority => '80',
+      config   => {
+        'type'    => 'forward',
+        'servers' => [
+          { 'host' => 'fluentd.example.com', 'port' => '24224' }
+        ],
+      },
+    }
 
 
 #### Forest Pluging configuration
@@ -117,61 +116,60 @@ This is an example of having key/value configuration for nested elements other t
 the 'server' elements usually seen - This example is based on using the (forest configuration)[https://github.com/tagomoris/fluent-plugin-forest] 
 plugin to manage the configuration of a (fluentd-plugin-elasticsearch)[https://github.com/uken/fluent-plugin-elasticsearch] gem.
 
-```
-fluentd::match { 'forest-es':
-  pattern  => '**',
-  priority => '10',
-  config   => {
-    'type'    => 'forst',
-    'subtype' => 'elasticsearch',
-    'remove_prefix' => 'my.logs',
-    'template' => [
-      { 
-        'host' => 'elasticsearch.example.com', 
-        'port' => 9200 
-        'logstash_prefix' => ${tag[1]},
-      }
-    ],
-  },
-}
-```
+
+    fluentd::match { 'forest-es':
+      pattern  => '**',
+      priority => '10',
+      config   => {
+        'type'    => 'forst',
+        'subtype' => 'elasticsearch',
+        'remove_prefix' => 'my.logs',
+        'template' => [
+          { 
+            'host' => 'elasticsearch.example.com', 
+            'port' => 9200 
+            'logstash_prefix' => ${tag[1]},
+          }
+        ],
+      },
+    }
 
 #### Forwarder with Secondary
 
 This is a very complicated example, based on the documentation of an (out forwarder)[http://docs.fluentd.org/articles/out_forward]
 
-```
-fluentd::match { 'forwarder-safe':
-  pattern  => '**',
-  priority => '10',
-  config   => {
-    'type'  =>  'forward',
-    'send_timeout'  =>  '60s',
-    'recover_wait'  =>  '10s',
-    'heartbeat_interval'  =>  '1s',
-    'phi_threshold'  =>  '16',
-    'hard_timeout'  =>  '60s',
 
-    'server' => [
-    {
-       'name'  =>  'myserver1',
-       'host'  =>  '192.168.1.3',
-       'port'  =>  '24224',
-       'weight'  =>  '60',
-     },{
-       'name'  =>  'myserver2',
-       'host'  =>  '192.168.1.4',
-       'port'  =>  '24224',
-       'weight'  =>  '60',
-     }
-    ],
-    'secondary' => {
-     'type'  =>  'file',
-     'path'  =>  '/var/log/fluent/forward-failed',
-}
-  }
-}
-```
+    fluentd::match { 'forwarder-safe':
+      pattern  => '**',
+      priority => '10',
+      config   => {
+        'type'  =>  'forward',
+        'send_timeout'  =>  '60s',
+        'recover_wait'  =>  '10s',
+        'heartbeat_interval'  =>  '1s',
+        'phi_threshold'  =>  '16',
+        'hard_timeout'  =>  '60s',
+
+        'server' => [
+        {
+           'name'  =>  'myserver1',
+           'host'  =>  '192.168.1.3',
+           'port'  =>  '24224',
+           'weight'  =>  '60',
+         },{
+           'name'  =>  'myserver2',
+           'host'  =>  '192.168.1.4',
+           'port'  =>  '24224',
+           'weight'  =>  '60',
+         }
+        ],
+        'secondary' => {
+         'type'  =>  'file',
+         'path'  =>  '/var/log/fluent/forward-failed',
+        }
+      }
+    }
+
 
 
 ## TODO

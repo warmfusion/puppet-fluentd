@@ -31,7 +31,8 @@
 #    Default: undef
 #
 # [*content*]
-#    Hash. Hash containing strings, hashes or arrays (1 level deep) to describe your configuration
+#    Hash. Hash containing strings, hashes or arrays 
+#          (1 level deep) to describe your configuration
 #          Must include a type
 #    Default: undef
 #  
@@ -53,21 +54,21 @@ define fluentd::match (
 
 
   if $type {
-    warning("fluentd::match{${name}}: type is deprecated - Please configure type in the $config variable)")
+    warning("fluentd::match{${name}}: type is deprecated - Please configure type in the 'config' variable)")
   }
 
   if $type_config {
-    warning("fluentd::match{${name}}: type_config is deprecated - Please configure source using the $config variable)")
+    warning("fluentd::match{${name}}: type_config is deprecated - Please configure source using the 'config' variable)")
   }
 
 
   unless ($config and $config['type']) or $type {
-    fail("fluentd::match{${name}} $config must contain a 'type' value") # (or type whilst its deprecated)
+    fail("fluentd::match{${name}} 'config' must contain a 'type' key") # (or type whilst its deprecated)
   }
 
 
   file { "/etc/fluent/conf.d/matchers/${priority}-${name}.conf":
-    ensure  => $ensure,
+    ensure  => 'present',
     owner   => 'fluent',
     group   => 'fluent',
     mode    => '0440',

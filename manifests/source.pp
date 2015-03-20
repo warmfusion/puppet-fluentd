@@ -37,7 +37,7 @@ define fluentd::source (
     $priority      = 10,
     $type          = undef,
     $type_config   = undef,
-    $config       = undef
+    $config        = undef
   ){
 
   if !is_integer($priority) {
@@ -46,20 +46,20 @@ define fluentd::source (
 
 
   if $type {
-    warning("fluentd::source{${name}}: type is deprecated - Please configure type in the $config variable)")
+    warning("fluentd::source{${name}}: type is deprecated - Please configure type in the 'config' variable)")
   }
 
   if $type_config {
-    warning("fluentd::source{${name}}: type_config is deprecated - Please configure source using the $config variable)")
+    warning("fluentd::source{${name}}: type_config is deprecated - Please configure source using the 'config' variable)")
   }
 
 
   unless ($config and $config['type']) or $type {
-    fail("fluentd::source{${name}} $config must contain a 'type' value") # (or type whilst its deprecated)
+    fail("fluentd::source{${name}} 'config' must contain a 'type' key") # (or type whilst its deprecated)
   }
 
   file { "/etc/fluent/conf.d/sources/${priority}-${name}.conf":
-    ensure  => $ensure,
+    ensure  => 'present',
     content => template('fluentd/conf/source.erb'),
     notify  => Service['fluentd'],
     owner   => 'fluent',

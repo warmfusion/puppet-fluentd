@@ -40,7 +40,9 @@ class fluentd (
     $user_groups  = ['fluent'],
     ){
 
-  validate_re($ensure, ['^absent$', '^installed$', '^latest$', '^present$', '^[\d\.\-]+$'], "Invalid fluentd ensure : ${ensure}")
+  validate_re($ensure,
+    ['^absent$', '^installed$', '^latest$', '^present$', '^[\d\.\-]+$'],
+    "Invalid fluentd ensure : ${ensure}")
 
 
   # Include everything and let each module determine its state.  This allows

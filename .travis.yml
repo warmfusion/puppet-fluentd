@@ -1,0 +1,37 @@
+---
+branches:
+  only:
+    - master
+language: ruby
+bundler_args: --without development
+script: bundle exec rake spec SPEC_OPTS='--format documentation'
+rvm:
+  - 1.9.3
+  - 2.0.0
+gemfile: Gemfile
+env:
+  matrix:
+    - PUPPET_GEM_VERSION="~> 2.7.0"
+    - PUPPET_GEM_VERSION="~> 3.1.0"
+    - PUPPET_GEM_VERSION="~> 3.2.0"
+    - PUPPET_GEM_VERSION="~> 3.3.0"
+    - PUPPET_GEM_VERSION="~> 3.4.0"
+    - PUPPET_GEM_VERSION="~> 3.5.0"
+    - PUPPET_GEM_VERSION="~> 3.6.0"
+    - PUPPET_GEM_VERSION="~> 3.7.0"
+matrix:
+  exclude:
+    - rvm: 1.9.3
+      env: PUPPET_GEM_VERSION="~> 2.7.0"
+      gemfile: Gemfile
+    - rvm: 1.9.3
+      env: PUPPET_GEM_VERSION="~> 3.1.0"
+      gemfile: Gemfile
+    - rvm: 2.0.0
+      env: PUPPET_GEM_VERSION="~> 2.7.0"
+      gemfile: Gemfile
+    - rvm: 2.0.0
+      env: PUPPET_GEM_VERSION="~> 3.1.0"
+      gemfile: Gemfile
+notifications:
+  email: admin@warmfusion.co.uk

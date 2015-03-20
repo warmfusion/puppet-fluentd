@@ -8,12 +8,13 @@
     * [What fluentd affects](#what-fluentd-affects)
     * [Setup requirements](#setup-requirements)
     * [Beginning with fluentd](#beginning-with-fluentd)
-4. [Usage - Configuration options and additional functionality](#usage)
-5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
-5. [Limitations - OS compatibility, etc.](#limitations)
+4. [Usage - Configuration options and additional functionality](#configuration)
+5. [Todo List - What needs to be done](#todo)
 6. [Development - Guide for contributing to the module](#development)
 
 ## Overview
+
+[![Build Status](https://travis-ci.org/warmfusion/puppet-fluentd.svg?branch=master)](https://travis-ci.org/warmfusion/puppet-fluentd)
 
 Manage a FluentD installation from the community managed Gem, and provide configuration
 for your environment using a set of puppet resources.
@@ -24,6 +25,14 @@ This module attempts to provide a mechanism to manage a FluentD installation usi
 the gem daemons rather than the td-agent packages which are not as well supported on
 some systems.
 
+
+The code has been heavily based on the Puppet module created by [mms-srf](https://github.com/mmz-srf/puppet-fluentd)
+as I wanted to try and solve a few perceived problems with that implementation:
+
+1. Avoid use of td-agent and instead use fluentd gem directly
+2. Improve flexibility of configuration by enabling multiple nested elements and arrays without hardcoding
+
+
 ## Setup
 
 ### What fluentd affects
@@ -33,66 +42,140 @@ some systems.
 * Provides resources to create additional named configuration files to be included automatically
 * Manages the fluentd service
 
-### Setup Requirements **OPTIONAL**
 
-TBA
+## Configuration
 
-### Beginning with fluentd
+How to configure the fluentd agent to send data to a centralised Fluentd-Server
 
-The very basic steps needed for a user to get the module up and running.
+### Install a Required Plugin
 
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you may wish to include an additional section here: Upgrading
-(For an example, see http://forge.puppetlabs.com/puppetlabs/firewall).
+> WARNING: Plugin configuration is not complete. Do not attempt to use this yet
 
-## Usage
+Install your fluentd plugin. (Check [here](http://fluentd.org/plugin/) for the
+right plugin name.)
 
-Put the classes, types, and resources for customizing, configuring, and doing
-the fancy stuff with your module here.
-
-### Matcher Configuration
-
-This configuration will setup a nested matching block containing a copy to two stores.
-
-    fluentd::match:
-      'nginx.access':
-        pattern: 'nginx.*'
-        priority: 10
-        config:
-          type: copy
-          store:
-           - type: file
-             path: /var/log/fluent/myapp
-             time_slice_format: %Y%m%d
-             time_slice_wait: 10m
-             time_format: %Y%m%dT%H%M%S%z
-             compress: gzip
-             utc: ''
-           - type: mongo
-             host fluentd
-             port 27017
-             database fluentd
-             collection test
+You can choose from a file or gem based installation.
 
 
-## Reference
+    include ::fluentd
 
-Here, list the classes, types, providers, facts, etc contained in your module.
-This section should include all of the under-the-hood workings of your module so
-people know what the module is touching on their system but don't need to mess
-with things. (We are working on automating this section!)
+    fluentd::plugin { 'elasticsearch':
+      plugin_type => 'gem',
+      plugin_name => 'fluent-plugin-elasticsearch',
+    }
 
-## Limitations
 
-This is where you list OS compatibility, version compatibility, etc.
+### Configure a Source
+
+Sources describe to fluentd where to obtain its data to process. This can include
+reading log files, opening tcp ports, running http services etc.
+
+
+
+    include ::fluentd
+
+    fluentd::source { 'apache':
+      config => {
+        'format'   => 'apache2',
+        'path'     => '/var/log/apache2/access.log',
+        'pos_file' => '/var/tmp/fluentd.pos',
+        'tag'      => 'apache.access_log',
+        'type'     => 'tail',
+      },
+    }
+
+    fluentd::source { 'syslog':
+      config => {
+        'format'   => 'syslog',
+        'path'     => '/var/log/syslog',
+        'pos_file' => '/tmp/td-agent.syslog.pos',
+        'tag'      => 'system.syslog',
+        'type'     => 'tail',
+      },
+    }
+
+
+### Match configuration
+
+    fluentd::match { 'forward':
+      pattern  => '**',
+      priority => '80',
+      config   => {
+        'type'    => 'forward',
+        'servers' => [
+          { 'host' => 'fluentd.example.com', 'port' => '24224' }
+        ],
+      },
+    }
+
+
+#### Forest Plugin configuration
+
+This is an example of having key/value configuration for nested elements other than
+the 'server' elements usually seen - This example is based on using the [forest configuration](https://github.com/tagomoris/fluent-plugin-forest) 
+plugin to manage the configuration of a [fluentd-plugin-elasticsearch](https://github.com/uken/fluent-plugin-elasticsearch) gem.
+
+
+    fluentd::match { 'forest-es':
+      pattern  => '**',
+      priority => '10',
+      config   => {
+        'type'    => 'forst',
+        'subtype' => 'elasticsearch',
+        'remove_prefix' => 'my.logs',
+        'template' => [
+          { 
+            'host' => 'elasticsearch.example.com', 
+            'port' => 9200 
+            'logstash_prefix' => ${tag[1]},
+          }
+        ],
+      },
+    }
+
+#### Forwarder with Secondary
+
+This is a very complicated example, based on the documentation of an [out forwarder](http://docs.fluentd.org/articles/out_forward)
+
+
+    fluentd::match { 'forwarder-safe':
+      pattern  => '**',
+      priority => '10',
+      config   => {
+        'type'  =>  'forward',
+        'send_timeout'  =>  '60s',
+        'recover_wait'  =>  '10s',
+        'heartbeat_interval'  =>  '1s',
+        'phi_threshold'  =>  '16',
+        'hard_timeout'  =>  '60s',
+
+        'server' => [
+        {
+           'name'  =>  'myserver1',
+           'host'  =>  '192.168.1.3',
+           'port'  =>  '24224',
+           'weight'  =>  '60',
+         },{
+           'name'  =>  'myserver2',
+           'host'  =>  '192.168.1.4',
+           'port'  =>  '24224',
+           'weight'  =>  '60',
+         }
+        ],
+        'secondary' => {
+         'type'  =>  'file',
+         'path'  =>  '/var/log/fluent/forward-failed',
+        }
+      }
+    }
+
+
+
+## TODO
+
+ [ ] - Plugin management
+ [ ] - Remove MASSIVE duplication of effort between source and match config - its basically the same thing twice
 
 ## Development
 
-Since your module is awesome, other users will want to play with it. Let them
-know what the ground rules for contributing are.
 
-## Release Notes/Contributors/Etc **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You may also add any additional sections you feel are
-necessary or important to include here. Please use the `## ` header.

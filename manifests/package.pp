@@ -12,9 +12,9 @@
 #
 class fluentd::package{
     
-    package{ 'fluentd':
+    package{ $::fluentd::package_name:
       ensure   => 'present',
-      provider => 'gem',
+      provider => $::fluentd::package_provider,
     }
 
     $dirs = [ '/etc/fluent', '/var/log/fluent', '/var/run/fluent' ]

@@ -36,11 +36,11 @@
 # Copyright 2015 Your name here, unless otherwise noted.
 #
 class fluentd (
-    $ensure           = 'present',
-    $user_groups      = ['fluent'],
-    $package_name     = ::fluentd::params::package_name,
-    $package_provider = ::fluentd::params::package_provider
-    ){
+    $ensure       = 'present',
+    $user_groups  = ['fluent'],
+    $package_name     = $::fluentd::params::package_name,
+    $package_provider = $::fluentd::params::package_provider
+    ) inherits ::fluentd::params{
 
   validate_re($ensure,
     ['^absent$', '^installed$', '^latest$', '^present$', '^[\d\.\-]+$'],

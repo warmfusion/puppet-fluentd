@@ -54,14 +54,26 @@ class fluentd::package{
         mode    => '0755',
     }
 
+    file {'/etc/logrotate.d/fluent':
+        ensure  => 'present',
+        source  => 'puppet:///modules/fluentd/fluentd.logrotate',
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644',
+        require => Package[ $::fluentd::package_name ]
+    }
+
     user { 'fluent':
         gid        => 'fluent',
         groups     => $fluentd::user_groups,
         shell      => '/bin/true',
         home       => '/etc/fluent',
+        system     => true,
         forcelocal => true,
     }
     group { 'fluent' :
-        ensure => 'present'
+        ensure     => 'present',
+        system     => true,
+        forcelocal => true,
     }
 }

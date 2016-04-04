@@ -1,7 +1,7 @@
 #!/usr/bin/env rspec
 require 'spec_helper'
 
-describe 'fluentd::match' do
+describe 'fluentd::filter' do
   let(:title) {'bar'}
 
   let (:facts) {{
@@ -9,51 +9,23 @@ describe 'fluentd::match' do
     :lsbdistid      => 'Debian',
     }}
 
-
-    context "when the type attribute is used" do
-      let(:params) {{
-          :priority   => 20,
-          :pattern    => 'baz',
-          :type       => 'something',
-          :config => {}
-        }}
-
-        it "should still contain the type" do
-          should contain_file('/etc/fluent/conf.d/matchers/20-bar.conf')
-            .with_content(/type.*something/m)
-        end
-    end
-
-        context "when the type_config attribute is used" do
-      let(:params) {{
-          :priority   => 20,
-          :pattern    => 'baz',
-          :type       => 'something',
-          :type_config => {
-            'option' => 'value'
-          }
-        }}
-
-        it "should still contain the configuration" do
-          should contain_file('/etc/fluent/conf.d/matchers/20-bar.conf')
-            .with_content(/option.*value/m)
-        end
-    end
-
-    context "when creating simple matcher" do
+    context "when creating filter with nested config" do
       let(:params) {{
         :pattern    => 'baz',
         :priority   => 20,
         :config     => {
-          'type'              => 'file',
-          'time_slice_wait'   => '10m',
-          'compress'          => 'gzip',
+          'type'    => 'grep',
+          'regexp1' => 'message',
+          'exclude' => 'string'
         }
         }}
 
-        it "should create matcher single segment" do
-          should contain_file('/etc/fluent/conf.d/matchers/20-bar.conf')
-            .with_content(/<match baz>.*type +file.*time_slice_wait +10m.*compress +gzip.*<\/match>/m)
+        it "should create filter single segment" do
+          should contain_file('/etc/fluent/conf.d/filters/20-bar.conf')
+            .with_content(/<filter baz>.*<\/filter>/m)
+            .with_content(/.*type.*grep.*/m)
+            .with_content(/.*regexp1 message.*/m)
+            .with_content(/.*exclude string.*/m)
         end
       end
 
@@ -65,9 +37,9 @@ describe 'fluentd::match' do
            }
           }}
 
-          it "should create matcher for multiple patterns" do
-            should contain_file('/etc/fluent/conf.d/matchers/10-bar.conf')
-              .with_content(/<match baz foo>/m)
+          it "should create filter for multiple patterns" do
+            should contain_file('/etc/fluent/conf.d/filters/10-bar.conf')
+              .with_content(/<filter baz foo>/m)
           end
         end
 
@@ -82,9 +54,9 @@ describe 'fluentd::match' do
              }
           }}
 
-          it "should create matcher with simple configuration" do
-            should contain_file('/etc/fluent/conf.d/matchers/10-bar.conf')
-              .with_content(/<match baz>.*option1 +valueone.*option2 +value2.*<\/match>/m)
+          it "should create filter with simple configuration" do
+            should contain_file('/etc/fluent/conf.d/filters/10-bar.conf')
+              .with_content(/<filter baz>.*option1 +valueone.*option2 +value2.*<\/filter>/m)
           end
         end
 
@@ -92,17 +64,17 @@ describe 'fluentd::match' do
         let(:params) {{
           :pattern    => 'baz',
           :config     => {
-            'type'              => 'copy',
-            'server' => {
+            'type'              => 'record_transformer',
+            'record' => {
               'option1' => 'valueone',
               'option2' => 'value2'
               }
             }
           }}
 
-          it "should create matcher with a few options" do
-            should contain_file('/etc/fluent/conf.d/matchers/10-bar.conf')
-              .with_content(/<match baz>.*type +copy.*<server>.*option1 +valueone.*option2 +value2.*<\/server>.*<\/match>/m)
+          it "should create filter with a few options" do
+            should contain_file('/etc/fluent/conf.d/filters/10-bar.conf')
+              .with_content(/<filter baz>.*type +record_transformer.*<record>.*option1 +valueone.*option2 +value2.*<\/record>.*<\/filter>/m)
           end
         end
 
@@ -123,9 +95,9 @@ describe 'fluentd::match' do
             }
           }}
 
-          it "should create matcher with both a server and secondary configuration" do
-            should contain_file('/etc/fluent/conf.d/matchers/10-bar.conf')
-              .with_content(/<match baz>.*type +copy.*<server>.*option1 +valueone.*option2 +value2.*<\/server>.*<secondary>.*type +file.*path +someplace.*<\/secondary>.*<\/match>/m)
+          it "should create filter with both a server and secondary configuration" do
+            should contain_file('/etc/fluent/conf.d/filters/10-bar.conf')
+              .with_content(/<filter baz>.*type +copy.*<server>.*option1 +valueone.*option2 +value2.*<\/server>.*<secondary>.*type +file.*path +someplace.*<\/secondary>.*<\/filter>/m)
           end
         end
 
@@ -146,9 +118,9 @@ describe 'fluentd::match' do
             }
           }}
 
-          it "should create matcher with two server sections" do
-            should contain_file('/etc/fluent/conf.d/matchers/10-bar.conf')
-              .with_content(/<match baz>.*type +copy.*<server>.*option1 +valueone.*option2 +value2.*<\/server>.*<server>.*type +file.*path +someplace.*<\/server>.*<\/match>/m)
+          it "should create filter with two server sections" do
+            should contain_file('/etc/fluent/conf.d/filters/10-bar.conf')
+              .with_content(/<filter baz>.*type +copy.*<server>.*option1 +valueone.*option2 +value2.*<\/server>.*<server>.*type +file.*path +someplace.*<\/server>.*<\/filter>/m)
           end
         end
 
@@ -174,10 +146,10 @@ describe 'fluentd::match' do
             }
           }}
 
-          it "should create matcher accordingly" do
+          it "should create filter accordingly" do
             # This isn't quite as robust as the above regex checks, but its a darn sight easier to read
-            should contain_file('/etc/fluent/conf.d/matchers/10-bar.conf')
-              .with_content(/<match baz>.*<\/match>/m)
+            should contain_file('/etc/fluent/conf.d/filters/10-bar.conf')
+              .with_content(/<filter baz>.*<\/filter>/m)
               .with_content(/type +copy/)
               .with_content(/buffer_size +100/)
               .with_content(/<server>.*host +boxone.*port +1001.*<\/server>/m)

@@ -6,7 +6,7 @@ describe 'fluentd::source' do
 
   let (:facts) {{
     :osfamily       => 'Debian',
-    :lsbdistid      => 'Debian', 
+    :lsbdistid      => 'Debian',
     }}
 
 
@@ -16,14 +16,6 @@ describe 'fluentd::source' do
           :type       => 'something',
           :config => {}
         }}
-
-        it "should throw a warning about type being deprecated" do
-
-          pending "Can't catch Warning events in Rspec yet - https://github.com/rodjek/rspec-puppet/issues/108"
-          expect {
-            should contain_file('/etc/fluent/conf.d/sources/20-bar.conf')
-          }.to raise_error(Puppet::Error, /type is deprecated/)
-        end
 
         it "should still contain the type" do
           should contain_file('/etc/fluent/conf.d/sources/20-bar.conf')
@@ -40,13 +32,6 @@ describe 'fluentd::source' do
           }
         }}
 
-        it "should throw a warning about type_config being deprecated" do
-
-          pending "Can't catch Warning events in Rspec yet - https://github.com/rodjek/rspec-puppet/issues/108"
-          expect {
-            should contain_file('/etc/fluent/conf.d/sources/20-bar.conf')
-          }.to raise_error(Puppet::Error, /type_config is deprecated/)
-        end
 
         it "should still contain the configuration" do
           should contain_file('/etc/fluent/conf.d/sources/20-bar.conf')
@@ -143,7 +128,7 @@ describe 'fluentd::source' do
         let(:params) {{
           :config     => {
             'type'   => 'copy',
-            'server' => [ 
+            'server' => [
                 {
                 'option1' => 'valueone',
                 'option2' => 'value2'
@@ -166,7 +151,7 @@ describe 'fluentd::source' do
           :config     => {
             'type'        => 'copy',
             'buffer_size' => 100,
-            'server' => [ 
+            'server' => [
                 {
                 'host' => 'boxone',
                 'port' => '1001'
@@ -195,4 +180,3 @@ describe 'fluentd::source' do
           end
         end
 end
-

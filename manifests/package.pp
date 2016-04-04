@@ -8,10 +8,10 @@
 #
 # === Variables
 #
-# None  
+# None
 #
 class fluentd::package{
-    
+
     package{ $::fluentd::package_name:
       ensure   => 'present',
       provider => $::fluentd::package_provider,
@@ -27,7 +27,9 @@ class fluentd::package{
 
     $exlusive_dirs = [ '/etc/fluent/conf.d',
         '/etc/fluent/conf.d/sources',
-        '/etc/fluent/conf.d/matchers/']
+        '/etc/fluent/conf.d/matchers/',
+        '/etc/fluent/conf.d/filters/',
+        ]
     file {$exlusive_dirs:
         ensure  => 'directory',
         owner   => 'fluent',
@@ -52,16 +54,35 @@ class fluentd::package{
         owner   => 'fluent',
         group   => 'fluent',
         mode    => '0755',
+        require => File['/etc/default/fluentd']
     }
 
-    file {'/etc/logrotate.d/fluent':
+    file{ '/etc/default/fluentd':
         ensure  => 'present',
-        source  => 'puppet:///modules/fluentd/fluentd.logrotate',
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644',
-        require => Package[ $::fluentd::package_name ]
+        content => template('fluentd/etc/default/fluentd.erb'),
+        owner   => 'fluent',
+        group   => 'fluent',
+        mode    => '0755',
+        notify  => Service['fluentd']
     }
+
+    logrotate::rule { 'fluent':
+        path          => '/var/log/fluent/fluentd.log',
+        rotate_every  => 'day',
+        missingok     => true,
+        rotate        => '30',
+        compress      => true,
+        delaycompress => true,
+        ifempty       => false,
+        create        => true,
+        create_mode   => '0640',
+        create_owner  => 'fluent',
+        create_group  => 'fluent',
+        sharedscripts => true,
+        postrotate    => '[ ! -f /var/run/fluent/fluentd.pid ] || kill -USR1 `cat /var/run/fluent/fluentd.pid`',
+        require       => [ User['fluent'], Group['fluent'] ]
+    }
+
 
     user { 'fluent':
         gid        => 'fluent',

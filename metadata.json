@@ -8,7 +8,8 @@
   "project_page": "https://github.com/warmfusion/puppet-fluentd",
   "issues_url": "https://github.com/warmfusion/puppet-fluentd/issues",
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"},
+    {"name":"rodjek-logrotate","version_requirement":">= 1.1.1"}
   ]
 }
 

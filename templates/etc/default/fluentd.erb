@@ -1,0 +1,4 @@
+# This file is managed by puppet
+
+# Ensure FluentD is allowed to open an appropriate number of handles
+ULIMIT="-Sn <%= scope.lookupvar("fluentd::ulimit") %>"

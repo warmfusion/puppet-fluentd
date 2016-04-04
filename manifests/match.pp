@@ -31,11 +31,11 @@
 #    Default: undef
 #
 # [*content*]
-#    Hash. Hash containing strings, hashes or arrays 
+#    Hash. Hash containing strings, hashes or arrays
 #          (1 level deep) to describe your configuration
 #          Must include a type
 #    Default: undef
-#  
+#
 #
 define fluentd::match (
     $priority      = 10,
@@ -74,6 +74,8 @@ define fluentd::match (
     mode    => '0440',
     content => template('fluentd/conf/match.erb'),
     notify  => Service['fluentd'],
+    require => File['/etc/fluent/conf.d/matchers/'],
+
   }
 
 

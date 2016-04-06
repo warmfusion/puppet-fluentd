@@ -21,7 +21,7 @@ for your environment using a set of puppet resources.
 
 ## Module Description
 
-This module attempts to provide a mechanism to manage a FluentD installation using 
+This module attempts to provide a mechanism to manage a FluentD installation using
 the gem daemons rather than the td-agent packages which are not as well supported on
 some systems.
 
@@ -46,24 +46,6 @@ as I wanted to try and solve a few perceived problems with that implementation:
 ## Configuration
 
 How to configure the fluentd agent to send data to a centralised Fluentd-Server
-
-### Install a Required Plugin
-
-> WARNING: Plugin configuration is not complete. Do not attempt to use this yet
-
-Install your fluentd plugin. (Check [here](http://fluentd.org/plugin/) for the
-right plugin name.)
-
-You can choose from a file or gem based installation.
-
-
-    include ::fluentd
-
-    fluentd::plugin { 'elasticsearch':
-      plugin_type => 'gem',
-      plugin_name => 'fluent-plugin-elasticsearch',
-    }
-
 
 ### Configure a Source
 
@@ -112,7 +94,7 @@ reading log files, opening tcp ports, running http services etc.
 #### Forest Plugin configuration
 
 This is an example of having key/value configuration for nested elements other than
-the 'server' elements usually seen - This example is based on using the [forest configuration](https://github.com/tagomoris/fluent-plugin-forest) 
+the 'server' elements usually seen - This example is based on using the [forest configuration](https://github.com/tagomoris/fluent-plugin-forest)
 plugin to manage the configuration of a [fluentd-plugin-elasticsearch](https://github.com/uken/fluent-plugin-elasticsearch) gem.
 
 
@@ -124,9 +106,9 @@ plugin to manage the configuration of a [fluentd-plugin-elasticsearch](https://g
         'subtype' => 'elasticsearch',
         'remove_prefix' => 'my.logs',
         'template' => [
-          { 
-            'host' => 'elasticsearch.example.com', 
-            'port' => 9200 
+          {
+            'host' => 'elasticsearch.example.com',
+            'port' => 9200
             'logstash_prefix' => ${tag[1]},
           }
         ],
@@ -169,13 +151,27 @@ This is a very complicated example, based on the documentation of an [out forwar
       }
     }
 
+### Install a Required Plugin
+
+> WARNING: Plugin configuration is not complete. Do not attempt to use this yet
+
+Install your fluentd plugin. (Check [here](http://fluentd.org/plugin/) for the
+right plugin name.)
+
+You can choose from a file or gem based installation.
+
+
+    include ::fluentd
+
+    fluentd::plugin { 'elasticsearch':
+      plugin_type => 'gem',
+      plugin_name => 'fluent-plugin-elasticsearch',
+    }
 
 
 ## TODO
 
- [ ] - Plugin management
- [ ] - Remove MASSIVE duplication of effort between source and match config - its basically the same thing twice
+* [ ] - Plugin management
+* [ ] - Remove  duplication of effort between source, match and filter config - its basically the same thing twice
 
 ## Development
-
-

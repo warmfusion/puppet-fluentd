@@ -1,15 +1,20 @@
 {
   "name": "warmfusion-fluentd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Toby Jackson",
   "summary": "Manage FluentD from gem install using defined types and resources for configuration",
-  "license": "Apache 2.0",
+  "license": "CC0-1.0",
   "source": "https://github.com/warmfusion/puppet-fluentd",
   "project_page": "https://github.com/warmfusion/puppet-fluentd",
   "issues_url": "https://github.com/warmfusion/puppet-fluentd/issues",
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"},
+    {"name":"puppetlabs-stdlib","version_requirement":">= 3.2.1"},
     {"name":"rodjek-logrotate","version_requirement":">= 1.1.1"}
-  ]
+  ],
+  "operatingsystem_support": [
+    {
+    "operatingsystem": "Debian",
+    "operatingsystemrelease": [ "wheezy" ]
+    }
+ ],
 }
-

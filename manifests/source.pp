@@ -14,6 +14,12 @@
 #
 # Here you should define a list of variables that this module would require.
 #
+#
+# [*ensure*]
+#   String. Controls if the managed resources shall be <tt>present</tt> or
+#   <tt>absent</tt>
+#   Defaults to <tt>present</tt>.
+#
 # [*priority*]
 #   Integer. Prefix to the filename to enforce sequential ordering of matches
 #   Default: 10
@@ -34,11 +40,16 @@
 #  
 #
 define fluentd::source (
+    $ensure       = 'present',
     $priority      = 10,
     $type          = undef,
     $type_config   = undef,
     $config        = undef
   ){
+
+  if ! ($ensure in [ 'present', 'absent' ]) {
+    fail("fluentd::source{${name}}: ensure must be a string of 'present' or 'absent' (got ${ensure}")
+  }
 
   if !is_integer($priority) {
     fail("fluentd::source{${name}}: priority must be an integer (got: ${priority})")
